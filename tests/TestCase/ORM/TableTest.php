@@ -25,18 +25,18 @@ class TableTest extends CakeTableTest
 {
 
     public $fixtures = [
-        'core.articles',
-        'core.tags',
-        'core.articles_tags',
-        'core.authors',
-        'core.categories',
-        'core.comments',
-        'core.groups',
-        'core.members',
-        'core.groups_members',
-        'core.polymorphic_tagged',
-        'core.site_articles',
-        'core.users'
+        'core.Articles',
+        'core.Tags',
+        'core.ArticlesTags',
+        'core.Authors',
+        'core.Categories',
+        'core.Comments',
+        'core.Groups',
+        'core.Members',
+        'core.GroupsMembers',
+        'core.PolymorphicTagged',
+        'core.SiteArticles',
+        'core.Users'
     ];
 
     /**

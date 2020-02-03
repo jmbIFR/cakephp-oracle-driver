@@ -67,7 +67,7 @@ Cake\Core\Configure::write('App', [
     ],
 ]);
 Cake\Core\Configure::write('debug', true);
-Cake\Core\Configure::write('Error.errorLevel', E_ALL & ~E_USER_DEPRECATED);
+Cake\Core\Configure::write('Error.errorLevel', E_ALL /* & ~E_USER_DEPRECATED */);
 
 $TMP = new \Cake\Filesystem\Folder(TMP);
 $TMP->create(TMP . 'cache/models', 0777);

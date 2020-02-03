@@ -92,18 +92,18 @@ class MethodLocatorTest extends TestCase
      *
      * @return void
      */
-    public function testConfigPlugin()
-    {
-        Plugin::load('TestPlugin');
+    // public function testConfigPlugin()
+    // {
+        // Plugin::load('TestPlugin');
 
-        $data = [
-            'connection' => 'testing',
-            'entityClass' => 'TestPlugin\Model\Entity\Comment',
-        ];
+        // $data = [
+            // 'connection' => 'testing',
+            // 'entityClass' => 'TestPlugin\Model\Entity\Comment',
+        // ];
 
-        $result = $this->_locator->config('TestPlugin.TestPluginComments', $data);
-        $this->assertEquals($data, $result, 'Returns config data.');
-    }
+        // $result = $this->_locator->config('TestPlugin.TestPluginComments', $data);
+        // $this->assertEquals($data, $result, 'Returns config data.');
+    // }
 
     /**
      * Test calling config() on existing instances throws an error.

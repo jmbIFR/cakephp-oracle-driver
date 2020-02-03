@@ -30,12 +30,12 @@ class QueryTest extends CakeQueryTest
      * @var array
      */
     public $fixtures = [
-        'core.articles',
-        'core.tags',
-        'core.articles_tags',
-        'core.authors',
-        'core.comments',
-        'core.posts',
+        'core.Articles',
+        'core.Tags',
+        'core.ArticlesTags',
+        'core.Authors',
+        'core.Comments',
+        'core.Posts',
     ];
 
     /**

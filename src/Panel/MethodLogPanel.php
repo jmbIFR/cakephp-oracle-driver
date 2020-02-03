@@ -54,7 +54,7 @@ class MethodLogPanel extends DebugPanel
                 continue;
             }
             $logger = null;
-            if ($connection->logQueries()) {
+            if ($connection->isQueryLoggingEnabled()) {
                 $logger = $connection->methodLogger();
             }
 
@@ -63,7 +63,7 @@ class MethodLogPanel extends DebugPanel
             }
             $logger = new DebugMethodLog($logger, $name);
 
-            $connection->logQueries(true);
+            $connection->enableQueryLogging(true);
             $connection->methodLogger($logger);
             $this->_loggers[] = $logger;
         }

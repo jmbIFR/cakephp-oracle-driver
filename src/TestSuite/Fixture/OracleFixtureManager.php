@@ -295,9 +295,9 @@ class OracleFixtureManager
         $dbs = $this->_fixtureConnections($fixtures);
         foreach ($dbs as $connection => $fixtures) {
             $db = ConnectionManager::get($connection, false);
-            $logQueries = $db->logQueries();
+            $logQueries = $db->isQueryLoggingEnabled();
             if ($logQueries && !$this->_debug) {
-                $db->logQueries(false);
+                $db->enableQueryLogging(false);
             }
             $db->transactional(function ($db) use ($fixtures, $operation) {
                 $db->disableConstraints(function ($db) use ($fixtures, $operation) {
@@ -305,7 +305,7 @@ class OracleFixtureManager
                 });
             });
             if ($logQueries) {
-                $db->logQueries(true);
+                $db->enableQueryLogging(true);
             }
         }
     }
