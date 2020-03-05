@@ -246,12 +246,74 @@ abstract class OracleBase extends Driver
      */
     public function lastInsertId($table = null, $column = null)
     {
-        $sequenceName = 'seq_' . strtolower($table);
+        $sequenceName = $this->_sequenceName($table, $column);
         $this->connect();
         $statement = $this->_connection->query("SELECT {$sequenceName}.CURRVAL FROM DUAL");
         $statement->execute();
         $result = $statement->fetch();
         return $result[0];
+    }
+
+    protected function _sequenceName($table = null, $column = null)
+    {
+        $sequenceName = 'seq_' . strtolower($table);
+
+        return;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function describeColumnSql($tableName, $config)
+    {
+        list($schema, $table) = $this->tableSplit($tableName, $config);
+        if (empty($schema)) {
+            $columnsTable = 'user_tab_columns';
+            $useOwner = false;
+            $params = [':tableParam' => $table];
+        } else {
+            $columnsTable = 'all_tab_columns';
+            $useOwner = true;
+            $params = [
+                ':tableParam' => $table,
+                ':ownerParam' => $schema
+            ];
+        }
+        $sql = "SELECT
+                    utc.table_name as \"table\",
+                    utc.data_default AS \"default\"
+                FROM $columnsTable utc
+                WHERE UPPER(utc.table_name) = :tableParam
+                " . ($useOwner ? 'AND utc.OWNER = :ownerParam' : '') . "
+                ORDER BY utc.column_id";
+
+        return [
+            $sql,
+            $params
+        ];
+    }
+
+    /**
+     * Builds array with schema and table names.
+     *
+     * @param string $name Table name optionally with schema name.
+     * @param array $config The connection configuration.
+     * @return string
+     */
+    public function tableSplit($name, $config)
+    {
+        $name = strtoupper($name);
+        $schema = null;
+        $table = $name;
+        if (strpos($name, '.') !== false) {
+            list($schema, $table) = explode('.', $table);
+        } elseif (!empty($config['schema'])) {
+            $schema = strtoupper($config['schema']);
+        }
+        return [
+            $schema,
+            $table
+        ];
     }
 
     /**

@@ -11,9 +11,11 @@
 
 namespace CakeDC\OracleDriver\Test\TestCase\ORM;
 
+use Cake\Database\Expression\IdentifierExpression;
+use Cake\Database\Expression\QueryExpression;
+use Cake\I18n\Time;
 use Cake\ORM\TableRegistry;
 use Cake\Test\TestCase\ORM\QueryRegressionTest as CakeQueryRegressionTest;
-
 
 /**
  * Tests QueryRegression class
@@ -29,6 +31,7 @@ class QueryRegressionTest extends CakeQueryRegressionTest
      */
     public function testComplexOrderWithUnion()
     {
+        $this->loadFixtures('Comments');
         $table = TableRegistry::get('Comments');
         $query = $table->find();
         $inner = $table->find()
@@ -57,6 +60,7 @@ class QueryRegressionTest extends CakeQueryRegressionTest
      */
     public function testSaveWithExpressionProperty()
     {
+        $this->loadFixtures('Articles');
         $articles = TableRegistry::get('Articles');
         $article = $articles->newEntity();
         $article->title = new \Cake\Database\Expression\QueryExpression("SELECT 'jose' from DUAL");
@@ -71,6 +75,7 @@ class QueryRegressionTest extends CakeQueryRegressionTest
      */
     public function testDeepBelongsToManySubqueryStrategy()
     {
+        $this->loadFixtures('Authors', 'Tags', 'Articles', 'ArticlesTags');
         $table = TableRegistry::get('Authors');
         $table->hasMany('Articles');
         $table->Articles->belongsToMany('Tags', [
@@ -97,6 +102,7 @@ class QueryRegressionTest extends CakeQueryRegressionTest
      */
     public function testDeepBelongsToManySubqueryStrategy2()
     {
+        $this->loadFixtures('Authors', 'Tags', 'AuthorsTags', 'Articles', 'ArticlesTags');
         $table = TableRegistry::get('Authors');
         $table->hasMany('Articles');
         $table->Articles->belongsToMany('Tags', [
@@ -132,6 +138,102 @@ class QueryRegressionTest extends CakeQueryRegressionTest
     }
 
     /**
+     * Tests that getting the count of a query with bind is correct
+     *
+     * @see https://github.com/cakephp/cakephp/issues/8466
+     * @return void
+     */
+    public function testCountWithBind()
+    {
+        $this->loadFixtures('Articles');
+        $table = $this->getTableLocator()->get('Articles');
+
+        $query = $table
+            ->find()
+            ->select(['title', 'id'])
+            ->where(function($exp) {
+                return $exp->like(new IdentifierExpression('title'), ':c0');
+            })
+            ->group(['id', 'title'])
+            ->bind(':c0', '%Second%');
+        $count = $query->count();
+        $this->assertEquals(1, $count);
+    }
+
+    /**
+     * Tests that bind in subqueries works.
+     *
+     * @return void
+     */
+    public function testSubqueryBind()
+    {
+        $this->loadFixtures('Articles');
+        $table = $this->getTableLocator()->get('Articles');
+        $sub = $table->find()
+            ->select(['id'])
+            ->where(function($exp) {
+                return $exp->like(new IdentifierExpression('title'), ':c0');
+            })
+            ->bind(':c0', 'Second %');
+
+        $query = $table
+            ->find()
+            ->select(['title'])
+            ->where(function($exp) use ($sub) {
+                $e = new QueryExpression();
+                return $exp->add($e->notIn(new IdentifierExpression('id'), $sub));
+            });
+        $result = $query->toArray();
+        $this->assertCount(2, $result);
+        $this->assertEquals('First Article', $result[0]->title);
+        $this->assertEquals('Third Article', $result[1]->title);
+    }
+
+    /**
+     * Test selecting with aliased aggregates and identifier quoting
+     * does not emit notice errors.
+     *
+     * @see https://github.com/cakephp/cakephp/issues/12766
+     * @return void
+     */
+    public function testAliasedAggregateFieldTypeConversionSafe()
+    {
+        $this->loadFixtures('Articles');
+        $articles = $this->getTableLocator()->get('Articles');
+
+        $driver = $articles->getConnection()->getDriver();
+        $restore = $driver->isAutoQuotingEnabled();
+
+        $driver->enableAutoQuoting(true);
+        $query = $articles->find();
+        $query->select([
+            'sumUsers' => $articles->find()->func()->sum(new IdentifierExpression('author_id'))
+        ]);
+        $driver->enableAutoQuoting($restore);
+
+        $result = $query->execute()->fetchAll('assoc');
+        $this->assertArrayHasKey('sumUsers', $result[0]);
+    }
+
+    /**
+     * Test that the typemaps used in function expressions
+     * create the correct results.
+     *
+     * @return void
+     */
+    public function testTypemapInFunctions2()
+    {
+        $this->loadFixtures('Comments');
+        $table = $this->getTableLocator()->get('Comments');
+        $query = $table->find();
+        $query->select([
+            'max' => $query->func()->max(new IdentifierExpression('created'), ['datetime'])
+        ]);
+        $result = $query->all()->first();
+        $this->assertEquals(new Time('2007-03-18 10:55:23'), $result['max']);
+    }
+
+    /**
      * We can use only union all with queries with clob fields
      *
      * @see https://asktom.oracle.com/pls/apex/f?p=100:11:0::::P11_QUESTION_ID:498299691850
@@ -139,6 +241,7 @@ class QueryRegressionTest extends CakeQueryRegressionTest
      */
     public function testCountWithUnionQuery()
     {
+        $this->loadFixtures('Articles');
         $table = TableRegistry::get('Articles');
         $query = $table->find()
                        ->where(['id' => 1]);
