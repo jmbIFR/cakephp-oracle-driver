@@ -33,6 +33,11 @@ abstract class OracleBase extends Driver
     use OracleDialectTrait;
 
     /**
+     * @inheritDoc
+     */
+    protected const MAX_ALIAS_LENGTH = 30;
+
+    /**
      * @var bool|mixed
      */
     public $connected;
