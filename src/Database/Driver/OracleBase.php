@@ -424,7 +424,8 @@ abstract class OracleBase extends Driver
             return new Oracle12Compiler();
         } else {
             return new OracleCompiler();
-
+        }
+    }
     /**
      * @inheritDoc
      */
