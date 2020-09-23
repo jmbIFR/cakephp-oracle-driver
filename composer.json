@@ -1,6 +1,6 @@
 {
-    "name": "cakedc/cakephp-oracle-driver",
-    "description": "CakePHP 3 Driver for Oracle Database",
+    "name": "jmbifr/cakephp-oracle-driver",
+    "description": "CakePHP 4 Driver for Oracle Database",
     "type": "cakephp-plugin",
     "keywords": [
         "cakephp",
