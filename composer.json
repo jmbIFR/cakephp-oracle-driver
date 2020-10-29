@@ -23,7 +23,7 @@
     ],
     "support": {
         "issues": "https://github.com/cakedc/cakephp-oracle-driver/issues",
-        "source": "https://github.com/cakedc/cakephp-oracle-driver"
+        "source": "https://github.com/jmbIFR/cakephp-oracle-driver"
     },
     "config": {
         "preferred-install": "src"
@@ -41,7 +41,7 @@
     "repositories": [],
     "autoload": {
         "psr-4": {
-            "CakeDC\\OracleDriver\\": "src"
+            "jmbIFR\\OracleDriver\\": "src"
         }
     },
     "autoload-dev": {
