@@ -41,7 +41,7 @@
     "repositories": [],
     "autoload": {
         "psr-4": {
-            "jmbIFR\\OracleDriver\\": "src"
+            "CakeDC\\OracleDriver\\": "src"
         }
     },
     "autoload-dev": {
